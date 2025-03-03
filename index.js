@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 require("dotenv").config();
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -28,6 +28,9 @@ async function run() {
 
         const equipmentCollection = client.db('equipmentDB').collection('equipments');
 
+        const userCollection = client.db('equipmentDB').collection('users');
+
+
         // add equipments
         app.post('/equipments', async (req, res) => {
             const newEquipment = req.body;
@@ -35,34 +38,20 @@ async function run() {
             res.send(result);
         })
 
-        // equipment list
-        app.get("http://localhost:5000/equipments/user", async (req, res) => {
-            try {
-                const userEmail = req.query.email;
-                if (!userEmail) return res.status(400).json({ error: "User email required" });
+        // add user(register)
+        app.post('/users', async (req, res) => {
+            const newUser = req.body;
+            console.log('Creating new user', newUser);
+            const result = await userCollection.insertOne(newUser);
+            res.send(result);
+        })
 
-                const userEquipments = await equipmentCollection.find({ userEmail }).toArray();
-                res.status(200).json(userEquipments);
-            } catch (error) {
-                res.status(500).json({ error: "Failed to fetch equipments" });
-            }
-        });
+        // app.post('/', async (req, res) => {
+        //     const productData = req.body;
+        //     const result = await equipmentCollection.insertOne(productData);
+        //     res.send(result)
+        // });
 
-        //   delete equipment list
-        app.delete("http://localhost:5000/equipments/:id", async (req, res) => {
-            try {
-                const id = req.params.id;
-                const result = await equipmentCollection.deleteOne({ _id: new ObjectId(id) });
-
-                if (result.deletedCount === 1) {
-                    res.status(200).json({ message: "Equipment deleted successfully" });
-                } else {
-                    res.status(404).json({ error: "Equipment not found" });
-                }
-            } catch (error) {
-                res.status(500).json({ error: "Failed to delete equipment" });
-            }
-        });
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
