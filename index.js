@@ -30,6 +30,13 @@ async function run() {
 
         const userCollection = client.db('equipmentDB').collection('users');
 
+        // Get all equipment added by a specific user
+        app.get('/equipments/:email', async (req, res) => {
+            const email = req.params.email;
+            const query = { userEmail: email };
+            const result = await equipmentCollection.find(query).toArray();
+            res.json(result);
+        })
 
         // add equipments
         app.post('/equipments', async (req, res) => {
@@ -41,7 +48,6 @@ async function run() {
         // add user(register)
         app.post('/users', async (req, res) => {
             const newUser = req.body;
-            console.log('Creating new user', newUser);
             const result = await userCollection.insertOne(newUser);
             res.send(result);
         })
