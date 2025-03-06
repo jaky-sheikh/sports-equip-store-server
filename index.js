@@ -39,7 +39,7 @@ async function run() {
         })
 
         // get operation for update
-        app.get('/equipments/:id', async (req, res) => {
+        app.get('/equipment/:id', async (req, res) => {
             const id = req.params.id;
             const query = { _id: new ObjectId(id) }
             const result = await equipmentCollection.findOne(query);
@@ -66,6 +66,28 @@ async function run() {
         //     res.send(result)
         // });
 
+        // update put operation
+        app.patch('/equipment/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) };
+            const options = { upsert: true };
+            const updatedEquipment = req.body;
+            const updateEquipment = {
+                $set: {
+                    image: updatedEquipment.image,
+                    itemName: updatedEquipment.itemName,
+                    categoryName: updatedEquipment.categoryName,
+                    description: updatedEquipment.description,
+                    price: updatedEquipment.price,
+                    rating: updatedEquipment.rating,
+                    customization: updatedEquipment.customization,
+                    processingTime: updatedEquipment.processingTime,
+                    stockStatus: updatedEquipment.stockStatus,
+                }
+            }
+            const result = await equipmentCollection.updateOne(query, updateEquipment, options);
+            res.send(result);
+        })
 
         // Delete operation
         app.delete('/equipments/:id', async (req, res) => {
