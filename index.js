@@ -21,91 +21,85 @@ const client = new MongoClient(uri, {
     }
 });
 
-async function run() {
-    try {
-        // Connect the client to the server	(optional starting in v4.7)
-        await client.connect();
 
-        const equipmentCollection = client.db('equipmentDB').collection('equipments');
 
-        const userCollection = client.db('equipmentDB').collection('users');
+const equipmentCollection = client.db('equipmentDB').collection('equipments');
 
-        // Get all equipment added by a specific user
-        app.get('/equipments/:email', async (req, res) => {
-            const email = req.params.email;
-            const query = { userEmail: email };
-            const result = await equipmentCollection.find(query).toArray();
-            res.json(result);
-        })
+const userCollection = client.db('equipmentDB').collection('users');
 
-        // get operation for update
-        app.get('/equipment/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: new ObjectId(id) }
-            const result = await equipmentCollection.findOne(query);
-            res.send(result);
-        })
+// Get all equipment added by a specific user
+app.get('/equipments/:email', async (req, res) => {
+    const email = req.params.email;
+    const query = { userEmail: email };
+    const result = await equipmentCollection.find(query).toArray();
+    res.json(result);
+})
 
-        // add equipments
-        app.post('/equipments', async (req, res) => {
-            const newEquipment = req.body;
-            const result = await equipmentCollection.insertOne(newEquipment);
-            res.send(result);
-        })
+app.get('/equipments', async (req, res) => {
+    const result = await equipmentCollection.find().toArray();
+    res.json(result);
+})
 
-        // add user(register)
-        app.post('/users', async (req, res) => {
-            const newUser = req.body;
-            const result = await userCollection.insertOne(newUser);
-            res.send(result);
-        })
+// get operation for update
+app.get('/equipment/:id', async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) }
+    const result = await equipmentCollection.findOne(query);
+    res.send(result);
+})
 
-        // app.post('/', async (req, res) => {
-        //     const productData = req.body;
-        //     const result = await equipmentCollection.insertOne(productData);
-        //     res.send(result)
-        // });
+// add equipments
+app.post('/equipments', async (req, res) => {
+    const newEquipment = req.body;
+    const result = await equipmentCollection.insertOne(newEquipment);
+    res.send(result);
+})
 
-        // update put operation
-        app.patch('/equipment/:id', async (req, res) => {
-            const id = req.params.id;
-            const query = { _id: new ObjectId(id) };
-            const options = { upsert: true };
-            const updatedEquipment = req.body;
-            const updateEquipment = {
-                $set: {
-                    image: updatedEquipment.image,
-                    itemName: updatedEquipment.itemName,
-                    categoryName: updatedEquipment.categoryName,
-                    description: updatedEquipment.description,
-                    price: updatedEquipment.price,
-                    rating: updatedEquipment.rating,
-                    customization: updatedEquipment.customization,
-                    processingTime: updatedEquipment.processingTime,
-                    stockStatus: updatedEquipment.stockStatus,
-                }
-            }
-            const result = await equipmentCollection.updateOne(query, updateEquipment, options);
-            res.send(result);
-        })
+// add user(register)
+app.post('/users', async (req, res) => {
+    const newUser = req.body;
+    const result = await userCollection.insertOne(newUser);
+    res.send(result);
+})
 
-        // Delete operation
-        app.delete('/equipments/:id', async (req, res) => {
-            const id = req.params.id;
-            const filter = { _id: new ObjectId(id) };
-            const result = await equipmentCollection.deleteOne(filter);
-            res.json(result);
-        })
+// app.post('/', async (req, res) => {
+//     const productData = req.body;
+//     const result = await equipmentCollection.insertOne(productData);
+//     res.send(result)
+// });
 
-        // Send a ping to confirm a successful connection
-        await client.db("admin").command({ ping: 1 });
-        console.log("Pinged your deployment. You successfully connected to MongoDB!");
-    } finally {
-        // Ensures that the client will close when you finish/error
-        // await client.close();
+// update put operation
+app.patch('/equipment/:id', async (req, res) => {
+    const id = req.params.id;
+    const query = { _id: new ObjectId(id) };
+    const options = { upsert: true };
+    const updatedEquipment = req.body;
+    const updateEquipment = {
+        $set: {
+            image: updatedEquipment.image,
+            itemName: updatedEquipment.itemName,
+            categoryName: updatedEquipment.categoryName,
+            description: updatedEquipment.description,
+            price: updatedEquipment.price,
+            rating: updatedEquipment.rating,
+            customization: updatedEquipment.customization,
+            processingTime: updatedEquipment.processingTime,
+            stockStatus: updatedEquipment.stockStatus,
+        }
     }
-}
-run().catch(console.dir);
+    const result = await equipmentCollection.updateOne(query, updateEquipment, options);
+    res.send(result);
+})
+
+// Delete operation
+app.delete('/equipments/:id', async (req, res) => {
+    const id = req.params.id;
+    const filter = { _id: new ObjectId(id) };
+    const result = await equipmentCollection.deleteOne(filter);
+    res.json(result);
+})
+
+
 
 
 
